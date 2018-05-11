@@ -1,0 +1,20 @@
+{:duct.core/environment :development
+ :duct.core/include ["aluminium/config"]
+
+ :duct.module/sql
+ {:database-url "jdbc:sqlite:db/jobs.sqlite"}
+
+ :duct.server/figwheel
+ {:css-dirs ["target/resources/aluminium/public/css"]
+  :builds   [{:id "dev"
+              :figwheel {:on-jsload "aluminium.client/mount-root"}
+              :source-paths  ["dev/src" "src"]
+              :build-options {:main aluminium.client
+                              :output-to "target/resources/aluminium/public/js/main.js"
+                              :output-dir "target/resources/aluminium/public/js"
+                              :asset-path "/js"
+                              :closure-defines {goog.DEBUG true}
+                              :verbose false
+                              :preloads [devtools.preload]
+                              :optimizations :none}}]}
+ :duct.compiler/cljs ^:replace {}}

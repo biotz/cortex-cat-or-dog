@@ -1,0 +1,6 @@
+.git
+app/target/classes/
+app/target/resources/
+mvn/
+app/logs/
+db/

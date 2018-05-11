@@ -1,0 +1,184 @@
+html{
+    font-family: 'Lato', sans-serif;
+}
+
+.main-panel{
+    font-size: 1em;
+    flex: 1 0 auto;
+    height: 86.5vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    justify-content: space-around;
+
+    &__title{
+        font-size: 4em;
+        letter-spacing: -5px;
+        color: rgba(255, 255, 255, 0.6);
+    };
+
+    &__unsure{
+	font-size: 0.75em;
+	padding-bottom: 0.75em;
+	background: bottom / 0.75em 0.75em no-repeat url('/assets/unsure.svg');
+    }
+
+    &__results{
+        margin-bottom: 70px;
+        font-size: 1.2em;
+
+        &--header{
+            color: white;
+        }
+    }
+
+    &__loading-text{
+        font-size: 1.2em;
+        color: white;
+        margin-top: 5px;
+    }
+}
+
+.main-nav {
+    list-style-type:none;
+    li {
+        align-self: flex-end;
+        padding: 5px 15px 0 0;
+    }
+    a {
+        text-decoration: none;
+        color: white;
+        padding: 0 5px 0 5px;
+    }
+
+    display: flex;
+    justify-content: space-between;
+    padding-left: 16px;
+
+    &__intro{
+        color: white;
+        font-style: italic;
+        font-size: 14px;
+        display: inline-block;
+        margin-bottom: 5px;
+        padding-left: 5px;
+    }
+
+    &__link-group{
+        font-size: 15px;
+    }
+
+    &__ribbon{
+        position: absolute;
+        top: 0;
+        right: 0;
+        border: 0;
+    }
+}
+
+.logo{
+    padding: 10px 0 0 10px;
+
+    &--link{
+        display: inline-block;
+    }
+
+    &__img{
+        width: 127px;
+    }
+}
+
+.file-upload_input {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    font-size: 1;
+    width: 0;
+    height: 100%;
+    opacity: 0;
+}
+
+.upload-button {
+    background: transparent;
+    border: solid 4px white;
+    color: #ffffff;
+    font-size: 20px;
+    padding: 10px 20px 10px 20px;
+    border-radius: 28px;
+    position: relative;
+    cursor: pointer;
+
+    &:hover {
+        background: #ffffff;
+        color: black;
+    }
+}
+
+.usage-warning{
+    color: white;
+    font-size: 1rem;
+    margin-bottom: 41px;
+}
+
+/**********************************
+ * MEDIA QUERIES
+ **********************************/
+
+@media (min-width: 480px){
+    .main-panel{
+        font-size: 1.5em;
+
+        &__title{
+            letter-spacing: -10px;
+        }
+
+        &__results, &__loading-text{
+            font-size: 1em;
+        }
+    }
+}
+
+@media (min-width: 600px){
+    .main-panel{
+        font-size: 1.8em;
+    }
+}
+
+@media (min-width: 900px){
+    .main-panel{
+        font-size: 2.5em;
+
+        &__title{
+            letter-spacing: -19px;
+        }
+
+        &__results, &__loading-text{
+            font-size: 0.7em;
+        }
+    }
+
+    .usage-warning{
+        font-size: 1.2rem;
+    }
+}
+
+@media (min-width: 1200px){
+    .main-panel{
+        font-size: 3.8em;
+
+        &__title{
+            letter-spacing: -25px;
+        }
+
+        &__results, &__loading-text{
+            font-size: 0.6em;
+        }
+    }
+
+    .usage-warning{
+        font-size: 1.4rem;
+    }
+}

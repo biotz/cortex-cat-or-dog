@@ -1,0 +1,345 @@
+{
+  "openapi" : "3.0.0",
+  "info" : {
+    "title" : "Cat or Dog Classification API",
+    "description" : "API application showcasing image recognition using deep learning, classifying uploaded images as cats or dogs.",
+    "contact" : {
+      "name" : "Cat or Dog classification API support",
+      "email" : "support@magnet.coop"
+    },
+    "license" : {
+      "name" : "Eclipse Public License either version 1.0 or (at your option) any later version.",
+      "url" : "https://www.eclipse.org/legal/epl-v10.html"
+    },
+    "version" : "0.9.0"
+  },
+  "servers" : [ {
+    "url" : "/cat-or-dog"
+  } ],
+  "paths" : {
+    "/classify/{id}" : {
+      "get" : {
+        "summary" : "Returns the details about a classification job.",
+        "description" : "Finds classification jobs by ID.",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/JobId"
+          },
+          "description" : "Id value for the job that was requested. It is a random UUIDv4 string",
+          "example" : "6ae111c8-3a2d-4515-a57d-23287ee8c41d"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Details about a finished classification job (successfully or not).",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ClassifyGetResponse200"
+                },
+                "examples" : {
+                  "done" : {
+                    "summary" : "Details for a classification job that has finished successfully",
+                    "value" : {
+                      "~id" : "6ae111c8-3a2d-4515-a57d-23287ee8c41d",
+                      "status" : "job.status/DONE",
+                      "details" : {
+                        "guess" : {
+                          "class" : "dog",
+                          "prob" : 0.976572453975677
+                        }
+                      }
+                    }
+                  },
+                  "error" : {
+                    "summary" : "Details for a classification job that has finished unsuccessfully",
+                    "value" : {
+                      "id" : "6ae111c8-3a2d-4515-a57d-23287ee8c41d",
+                      "status" : "job.status/ERROR",
+                      "details" : {
+                        "reason" : "invalid-image-file"
+                      }
+                    }
+                  }
+                }
+              },
+              "application/transit+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ClassifyGetResponse200"
+                },
+                "examples" : {
+                  "done" : {
+                    "summary" : "Details for a classification job that has finished successfully",
+                    "value" : [ "^ ", "~:id", "6ae111c8-3a2d-4515-a57d-23287ee8c41d", "~:status", "~:job.status/DONE", "~:details", "^ " ]
+                  },
+                  "error" : {
+                    "summary" : "Details for a classification job that has finished unsuccessfully",
+                    "value" : [ "^ ", "~:id", "6ae111c8-3a2d-4515-a57d-23287ee8c41d", "~:status", "~:job.status/ERROR", "~:details", [ "^ ", "~:reason", "invalid-image-file" ] ]
+                  }
+                }
+              }
+            }
+          },
+          "201" : {
+            "description" : "Details about a non-finished classification job.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ClassifyGetResponse201"
+                },
+                "examples" : {
+                  "classifying" : {
+                    "summary" : "Details for a job that is in the classifying stage",
+                    "value" : {
+                      "id" : "6ae111c8-3a2d-4515-a57d-23287ee8c41dzzzzzzzz",
+                      "status" : "job.status/CLASSIFYING",
+                      "details" : { }
+                    }
+                  }
+                }
+              },
+              "application/transit+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ClassifyGetResponse201"
+                },
+                "examples" : {
+                  "classifying" : {
+                    "summary" : "Details for a job that is in the classifying stage",
+                    "value" : [ "^ ", "~:id", "6ae111c8-3a2d-4515-a57d-23287ee8c41d", "~:status", "~:job.status/CLASSIFYING", "~:details", [ "^ " ] ]
+                  }
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Error returned when the requested job doesn't exist.",
+            "content" : {
+              "text/html" : {
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/classify" : {
+      "post" : {
+        "summary" : "Submit a new classification job",
+        "description" : "Submits a new classification job for an image that has already been uploaded to the service, using the /files API endpoint.",
+        "parameters" : [ {
+          "name" : "Content-Type",
+          "in" : "header",
+          "description" : "The request must include a ContenType header, with the value \"application/transit+json\"",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "Accept",
+          "in" : "header",
+          "description" : "The request must include an Accept, with the value \"application/transit+json\"",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "description" : "Submit a classification job.",
+          "required" : true,
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "object",
+                "required" : [ "upload-url" ],
+                "properties" : {
+                  "upload-url" : {
+                    "type" : "string",
+                    "description" : "URL of a previously uploaded file, using the tus.io protocol for resumable uploads (https://tus.io/)"
+                  }
+                },
+                "example" : {
+                  "upload-url" : "https://some.server.name/files/5439ad4e477644c5be5e10b0c1b9b1b2"
+                }
+              }
+            },
+            "application/transit+json" : {
+              "schema" : {
+                "type" : "object",
+                "required" : [ "upload-url" ],
+                "properties" : {
+                  "upload-url" : {
+                    "type" : "string",
+                    "description" : "URL of a previously uploaded file."
+                  }
+                },
+                "example" : [ "^ ", "~:upload-url", "https://some.server.name/files/819ff9bc1f734ccea9d2103cf487eb0f" ]
+              }
+            }
+          }
+        },
+        "responses" : {
+          "201" : {
+            "description" : "The new classification job has been accepted and queued for processing.",
+            "headers" : {
+              "Location" : {
+                "description" : "The URL where the job details can be queried.",
+                "schema" : {
+                  "type" : "string"
+                },
+                "example" : "https://some.server.name/cat-or-dog/classify/6ae111c8-3a2d-4515-a57d-23287ee8c41d"
+              }
+            }
+          },
+          "400" : {
+            "description" : "The request points to an invalid upload file (the files does't exist, it doesn't have a supported format, etc.)",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "required" : [ "cause", "additional-details" ],
+                  "properties" : {
+                    "cause" : {
+                      "type" : "string",
+                      "description" : "A short description of the type of error."
+                    },
+                    "additional-details" : {
+                      "type" : "object",
+                      "description" : "Additional details on the type of error."
+                    }
+                  },
+                  "example" : {
+                    "cause" : "File does not exist",
+                    "additional-details" : {
+                      "upload-url" : "https://some.server.name/files/819ff9bc1f734ccea9d2103cf487eb0f"
+                    }
+                  }
+                }
+              },
+              "application/transit+json" : {
+                "schema" : {
+                  "type" : "object",
+                  "required" : [ "cause", "additional-details" ],
+                  "properties" : {
+                    "cause" : {
+                      "type" : "string",
+                      "description" : "A short description of the type of error."
+                    },
+                    "additional-details" : {
+                      "type" : "object",
+                      "description" : "Additional details on the type of error."
+                    }
+                  },
+                  "example" : [ "^ ", "~:cause", "File does not exist", "~:additional-details", [ "^ ", "~:upload-url", "https://some.server.name/files/819ff9bc1f734ccea9d2103cf487eb0f" ] ]
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "JobId" : {
+        "type" : "string",
+        "description" : "Id value for the job that was requested. It is a random UUIDv4 string",
+        "example" : "6ae111c8-3a2d-4515-a57d-23287ee8c41d"
+      },
+      "JobStatus" : {
+        "type" : "string",
+        "description" : "A string representation of the current status of the job. As of now, the possible job statuses are:\n* \":job.status/SUBMITTED\": The job has been created, but processing of the job has not started yet. This is a non-finished status.\n* \":job.status/PREPROCESSING\": The job has started and is in the preprocessing stage. This is a non-finished status.\n* \":job.status/CLASSIFYING\": The job has started and is in the classification stage. This is a non-finished status.\n* \":job.status/ERROR\": The job has finished unsuccessfully. This is a finished status.\n* \":job.status/DONE\": The job has finished successfully. This is a finished status.\n",
+        "enum" : [ ":job.status/SUBMITTED", ":job.status/PREPROCESSING", ":job.status/CLASSIFYING", ":job.status/DONE", ":job.status/ERROR" ]
+      },
+      "JobCommon" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "$ref" : "#/components/schemas/JobId"
+          },
+          "status" : {
+            "$ref" : "#/components/schemas/JobStatus"
+          }
+        }
+      },
+      "JobInProgress" : {
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/JobCommon"
+        }, {
+          "type" : "object",
+          "required" : [ "details" ],
+          "properties" : {
+            "details" : {
+              "type" : "object",
+              "description" : "An empty object"
+            }
+          }
+        } ]
+      },
+      "JobError" : {
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/JobCommon"
+        }, {
+          "type" : "object",
+          "required" : [ "details" ],
+          "properties" : {
+            "details" : {
+              "type" : "object",
+              "required" : [ "reason" ],
+              "properties" : {
+                "reason" : {
+                  "type" : "string",
+                  "description" : "A string with details about the error of the job."
+                }
+              }
+            }
+          }
+        } ]
+      },
+      "JobDone" : {
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/JobCommon"
+        }, {
+          "type" : "object",
+          "required" : [ "details" ],
+          "properties" : {
+            "details" : {
+              "type" : "object",
+              "required" : [ "guess" ],
+              "properties" : {
+                "guess" : {
+                  "type" : "object",
+                  "required" : [ "class", "prob" ],
+                  "properties" : {
+                    "class" : {
+                      "type" : "string",
+                      "description" : "A string with the label assigned by the classification engine to the image. As of now, it's either \"cat\" or \"dog\"."
+                    },
+                    "prob" : {
+                      "type" : "number",
+                      "format" : "float",
+                      "description" : "A floating point number with the probability assigned by the classification engine the assigned label."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        } ]
+      },
+      "ClassifyGetResponse200" : {
+        "oneOf" : [ {
+          "$ref" : "#/components/schemas/JobError"
+        }, {
+          "$ref" : "#/components/schemas/JobDone"
+        } ]
+      },
+      "ClassifyGetResponse201" : {
+        "$ref" : "#/components/schemas/JobInProgress"
+      }
+    }
+  }
+}

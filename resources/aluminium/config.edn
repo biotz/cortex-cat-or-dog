@@ -1,0 +1,66 @@
+{:duct.core/project-ns  aluminium
+ :duct.core/environment :production
+
+ :duct.module/logging {}
+ :duct.module.web/site {}
+ :duct.module/cljs {:main aluminium.client}
+
+ ;; If we want to use the advanced optimization mode of the Google
+ ;; Closure compiler, and use external libraries (as we do with the
+ ;; tus-js-client library, that we use directly from a CDN), we need
+ ;; to tell the Closure compiler what symbols are external, so it
+ ;; doesn't munge their names as part of the optimization.
+ ;;
+ ;; Unfortunately, Duct doesn't support adding/changing a single value
+ ;; for the :builds or :build-options keys for the CLJS compiler
+ ;; module, so we need to specify the full configuration map.
+ ;;
+ ;; This is only needed for the :production environment, as no
+ ;; optimization is used in the :dev environment.
+ :duct.compiler/cljs  {:builds
+                       [{:source-paths  ["src"]
+                         :build-options
+                         {:main aluminium.client
+                          :output-to "target/resources/aluminium/public/js/main.js"
+                          :output-dir "target/resources/aluminium/public/js"
+                          :asset-path "/js"
+                          :closure-defines {:goog.DEBUG false}
+                          :verbose true
+                          :externs ["src/aluminium/js/externs.js"]
+                          :optimizations :advanced}}]}
+
+ :duct.middleware.web/defaults {:security {:anti-forgery false}}
+
+ :duct.core/handler {:middleware [#ig/ref :duct.middleware.web/format]}
+ :duct.middleware.web/format {}
+
+ :duct.router/cascading
+ [#ig/ref :aluminium.handler/root
+  #ig/ref :aluminium.handler/files
+  #ig/ref :aluminium.handler/cat-or-dog]
+
+ :aluminium.handler/root {}
+
+ :aluminium.handler/resumed {:save-dir #duct/env ["UPLOAD_DIR" Str :or "/tmp/aluminium"]
+                             :max-upload-size #duct/env ["UPLOAD_MAXSIZE" Int :or 10]}
+
+ :aluminium.handler/files {:resumed #ig/ref :aluminium.handler/resumed}
+
+ :aluminium.handler/cat-or-dog {:resumed #ig/ref :aluminium.handler/resumed
+                                :db-conn {:conn #ig/ref :duct.database/sql}
+                                :cortex #ig/ref :aluminium.domain/cortex
+                                :logger #ig/ref :duct/logger}
+
+ :aluminium.domain/cortex {:network-file  #duct/env ["CORTEX_TRAINED_NN_FILE" Str :or "trained-network.nippy"]
+                           :logger #ig/ref :duct/logger}
+
+ :duct.compiler/sass {:source-paths ["resources"]
+                      :output-path "target/resources"}
+
+ :duct.module/sql {:database-url #duct/env ["JDBC_DATABASE_URL" Str :or "jdbc:sqlite:jobs.sqlite"]}
+
+ :duct.migrator/ragtime {:migrations [#ig/ref :jobs.migration/create-jobs]}
+
+ [:duct.migrator.ragtime/sql :jobs.migration/create-jobs]
+ {:up ["CREATE TABLE jobs (id VARCHAR(40) PRIMARY KEY, upload_url TEXT, image_path TEXT, status TEXT, details TEXT)"]
+  :down ["DROP TABLE jobs"]}}

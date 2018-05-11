@@ -1,0 +1,36 @@
+[
+ ;; Jobs
+ {:db/ident :job/id
+  :db/valueType :db.type/uuid
+  :db/unique :db.unique/identity
+  :db/cardinality :db.cardinality/one
+  :db.install/_attribute :db.part/db}
+
+ {:db/ident :job/upload-url
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db.install/_attribute :db.part/db}
+
+ {:db/ident :job/image-path
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db.install/_attribute :db.part/db}
+
+ {:db/ident :job/status
+  :db/isComponent true
+  :db/valueType :db.type/ref
+  :db/cardinality :db.cardinality/one
+  :db.install/_attribute :db.part/db}
+
+ {:db/ident :job/details
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db.install/_attribute :db.part/db}
+
+ ;; Job statuses (enum)
+ {:db/ident :job.status/SUBMITTED}
+ {:db/ident :job.status/PREPROCESSING}
+ {:db/ident :job.status/CLASSIFYING}
+ {:db/ident :job.status/ERROR}
+ {:db/ident :job.status/DONE}
+ ]
